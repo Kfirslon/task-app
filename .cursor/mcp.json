@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ]
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "supabase-mcp"
+      ],
+      "env": {
+        "SUPABASE_URL": "https://wapivfbxcenjnysmzawn.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhcGl2ZmJ4Y2Vuam55c216YXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5ODc5NjEsImV4cCI6MjA3ODU2Mzk2MX0.RYfzzg6AI_7iHTaS9QM-xJZ0oRf3lYB8oduf54xeoGQ",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhcGl2ZmJ4Y2Vuam55c216YXduIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mjk4Nzk2MSwiZXhwIjoyMDc4NTYzOTYxfQ.ndNsV3VV_vm2Gso5BD6IbhlyNMwPDhKE2ZnQjQ1rHs8",
+        "MCP_API_KEY": "test-key-123"
+      }
+    }
+  }
+}
