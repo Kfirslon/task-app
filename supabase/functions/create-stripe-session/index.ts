@@ -65,9 +65,35 @@ Deno.serve(async (req) => {
       throw new Error("No profile found");
     }
 
-    console.log(`🔎 Found profile: ${profile}`);
-    if (!profile?.stripe_customer_id) {
-      throw new Error("No Stripe customer found");
+    console.log(`🔎 Found profile: ${JSON.stringify(profile)}`);
+    
+    let stripeCustomerId = profile.stripe_customer_id;
+    
+    // Create Stripe customer if one doesn't exist
+    if (!stripeCustomerId) {
+      console.log("🆕 No Stripe customer found, creating one...");
+      
+      const customer = await stripe.customers.create({
+        email: user.email,
+        metadata: {
+          supabase_user_id: user.id,
+        },
+      });
+      
+      console.log(`✅ Created Stripe customer: ${customer.id}`);
+      
+      // Update profile with new customer ID
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ stripe_customer_id: customer.id })
+        .eq("user_id", user.id);
+      
+      if (updateError) {
+        console.error("Failed to update profile with customer ID:", updateError);
+        throw new Error("Failed to save Stripe customer ID");
+      }
+      
+      stripeCustomerId = customer.id;
     }
 
     const originUrl = req.headers.get("origin") ?? "http://localhost:3000";
@@ -75,7 +101,7 @@ Deno.serve(async (req) => {
     // Create Portal session if already subscribed
     if (profile.subscription_plan === "premium") {
       const session = await stripe.billingPortal.sessions.create({
-        customer: profile.stripe_customer_id,
+        customer: stripeCustomerId,
         return_url: `${originUrl}/profile`,
       });
       return new Response(JSON.stringify({ url: session.url }), {
@@ -85,7 +111,7 @@ Deno.serve(async (req) => {
 
     // Create Checkout session for new subscribers
     const session = await stripe.checkout.sessions.create({
-      customer: profile.stripe_customer_id,
+      customer: stripeCustomerId,
       line_items: [
         {
           price: STRIPE_PRICE_ID,
