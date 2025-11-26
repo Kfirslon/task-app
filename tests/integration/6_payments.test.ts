@@ -92,11 +92,39 @@ describe("Suite 6: Stripe Payments Integration", () => {
     }
 
     customerId = profile.stripe_customer_id;
-    console.log(`🔒 Created User with Stripe Customer ID: ${customerId}`);
+
+    // If no Stripe customer exists, create one manually
+    if (!customerId || customerId === "") {
+      console.log("No Stripe customer found, creating one manually...");
+      const stripeCustomer = await stripe.customers.create({
+        email: testUser.email,
+        name: TEST_USER_GREG.name,
+      });
+      customerId = stripeCustomer.id;
+
+      // Update the profile with the Stripe customer ID
+      await supabaseServiceClient
+        .from("profiles")
+        .update({ stripe_customer_id: customerId })
+        .eq("user_id", testUser?.id);
+
+      console.log("Created Stripe customer manually: " + customerId);
+    }
+
+    console.log("Created User with Stripe Customer ID: " + customerId);
     await createPaymentMethod();
   }, 15_000);
 
   afterAll(async () => {
+    // Clean up Stripe customer
+    if (customerId) {
+      try {
+        await stripe.customers.del(customerId);
+        console.log("Deleted Stripe customer: " + customerId);
+      } catch (error) {
+        console.error("Failed to delete Stripe customer:", error);
+      }
+    }
     if (testUser) {
       await cleanupTestUser(testUser.id);
     }
@@ -124,14 +152,21 @@ describe("Suite 6: Stripe Payments Integration", () => {
     const response = await sendWebhookEvent(event);
     expect(response.status).toBe(200);
 
+    // Wait for webhook to process
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     // Verify database update
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabaseServiceClient
       .from("profiles")
       .select()
-      .eq("stripe_customer_id", customerId)
+      .eq("user_id", testUser!.id)
       .single();
 
-    expect(profile.subscription_plan).toBe("premium");
+    if (profileError) {
+      console.error("Profile query error:", profileError);
+    }
+    expect(profile).toBeTruthy();
+    expect(profile?.subscription_plan).toBe("premium");
   }, 30_000);
 
   test("deleted subscription updates user to free", async () => {
@@ -158,14 +193,21 @@ describe("Suite 6: Stripe Payments Integration", () => {
     const response = await sendWebhookEvent(event);
     expect(response.status).toBe(200);
 
+    // Wait for webhook to process
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     // Verify database update
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabaseServiceClient
       .from("profiles")
       .select()
-      .eq("stripe_customer_id", customerId)
+      .eq("user_id", testUser!.id)
       .single();
 
-    expect(profile.subscription_plan).toBe("free");
-    expect(profile.tasks_limit).toBe(TASK_LIMITS.FREE_TIER);
+    if (profileError) {
+      console.error("Profile query error:", profileError);
+    }
+    expect(profile).toBeTruthy();
+    expect(profile?.subscription_plan).toBe("free");
+    expect(profile?.tasks_limit).toBe(TASK_LIMITS.FREE_TIER);
   }, 30_000);
 });

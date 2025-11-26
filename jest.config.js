@@ -1,3 +1,8 @@
+// Load environment variables BEFORE jest even starts
+const dotenv = require("dotenv");
+const path = require("path");
+dotenv.config({ path: path.join(__dirname, "tests", ".env.test") });
+
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
@@ -6,5 +11,5 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1'
   },
-  setupFiles: ["<rootDir>/jest.setup.js"],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
 };
