@@ -16,7 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen relative overflow-hidden`}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+      </head>
+      <body className={`${inter.className} min-h-screen relative`}>
         <div className="fixed inset-0 -z-20 bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900" />
         
         <div 
@@ -30,12 +33,12 @@ export default function RootLayout({
             animation: 'gridMove 20s linear infinite'
           }}
         />
-
+        
         <div className="fixed top-20 left-20 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl opacity-20 animate-pulse" />
         <div className="fixed bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
         <div className="fixed top-1/2 left-1/2 w-96 h-96 bg-pink-500 rounded-full filter blur-3xl opacity-15 animate-pulse" style={{ animationDelay: '2s' }} />
-
-        <div 
+        
+        <div
           className="fixed inset-0 -z-10 pointer-events-none"
           style={{
             background: 'linear-gradient(to bottom, transparent 0%, rgba(139, 92, 246, 0.1) 50%, transparent 100%)',
@@ -43,7 +46,7 @@ export default function RootLayout({
             animation: 'scan 8s linear infinite'
           }}
         />
-
+        
         <style jsx global>{`
           @keyframes gridMove {
             0% { transform: translateY(0); }
@@ -54,11 +57,11 @@ export default function RootLayout({
             100% { transform: translateY(100vh); }
           }
         `}</style>
-
+        
         <div className="flex flex-col min-h-screen relative">
           <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">
-            <Card className="w-full max-w-2xl mx-auto shadow-2xl border-2 border-purple-500/30 backdrop-blur-sm bg-gradient-to-br from-amber-50 to-orange-50">
+          <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl">
+            <Card className="w-full shadow-2xl border-2 border-purple-500/30 backdrop-blur-sm bg-gradient-to-br from-amber-50 to-orange-50">
               <CardContent className="p-6">
                 <RouteGuard>{children}</RouteGuard>
               </CardContent>
