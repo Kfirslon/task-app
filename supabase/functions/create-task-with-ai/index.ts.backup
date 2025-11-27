@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
 
   try {
     const { title, description } = await req.json();
-    console.log("Creating task with AI suggestions...");
+    console.log("🔄 Creating task with AI suggestions...");
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
@@ -48,61 +48,32 @@ Deno.serve(async (req) => {
     });
 
     // Enhanced AI prompt for multiple insights
-    const aiPrompt = `Analyze this task and provide insights.
-
+    const aiPrompt = `Analyze this task and provide insights in JSON format:
 Task: "${title}"
 Description: "${description || 'No description provided'}"
 
-PRIORITY RULES:
-- HIGH: urgent deadlines, meetings with executives/CEO, critical business tasks, words like "urgent", "deadline", "ASAP", "tomorrow"
-- MEDIUM: normal tasks, regular work, can wait a few days
-- LOW: optional tasks, casual activities, "when I have time", simple errands
+Provide a JSON response with:
+1. "label": ONE of these categories: work, personal, priority, shopping, home
+2. "priority": high, medium, or low based on urgency/importance
+3. "estimated_time": estimated minutes to complete (number only)
+4. "suggestion": a brief helpful tip for completing this task
 
-LABEL RULES:
-- work: professional tasks, business meetings, presentations, reports, work-related
-- shopping: buying items, groceries, stores, purchasing
-- home: household chores, cleaning, maintenance, home improvement
-- priority: urgent/critical tasks with strict deadlines
-- personal: everything else, personal errands, hobbies
-
-TIME ESTIMATION:
-- Simple tasks (5-15 min): quick errands, brief calls
-- Medium tasks (20-60 min): meetings, shopping trips, cleaning
-- Complex tasks (90-240 min): presentations, detailed work, major projects
-
-Respond with this exact JSON structure:
-{
-  "label": "work or personal or priority or shopping or home",
-  "priority": "high or medium or low",
-  "estimated_time": number_in_minutes,
-  "suggestion": "brief helpful tip in one sentence"
-}`;
+Respond with ONLY valid JSON, no other text.`;
 
     const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: "You are a task analysis AI. Respond ONLY with valid JSON. No markdown, no explanations, no extra text."
-        },
-        { 
-          role: "user", 
-          content: aiPrompt 
-        }
-      ],
+      messages: [{ role: "user", content: aiPrompt }],
       model: "gpt-4o-mini",
       temperature: 0.3,
-      max_tokens: 200,
-      response_format: { type: "json_object" }
+      max_tokens: 150,
     });
 
     let aiResponse;
     try {
       const responseText = completion.choices[0].message.content?.trim() || "{}";
-      console.log("Raw AI Response:", responseText);
       aiResponse = JSON.parse(responseText);
-      console.log("Parsed AI Response:", aiResponse);
+      console.log("✨ AI Response:", aiResponse);
     } catch (parseError) {
-      console.error("Failed to parse AI response, using defaults. Error:", parseError);
+      console.error("Failed to parse AI response, using defaults");
       aiResponse = {
         label: "personal",
         priority: "medium",
@@ -115,10 +86,10 @@ Respond with this exact JSON structure:
     const validLabels = ["work", "personal", "priority", "shopping", "home"];
     const validPriorities = ["high", "medium", "low"];
     
-    const label = validLabels.includes(aiResponse.label) ? aiResponse.label : "personal";
+    const label = validLabels.includes(aiResponse.label) ? aiResponse.label : null;
     const priority = validPriorities.includes(aiResponse.priority) ? aiResponse.priority : "medium";
     const estimated_time = typeof aiResponse.estimated_time === "number" && aiResponse.estimated_time > 0
-      ? Math.min(aiResponse.estimated_time, 480)
+      ? Math.min(aiResponse.estimated_time, 480) // Cap at 8 hours
       : 30;
 
     // Store full AI insights
@@ -127,8 +98,6 @@ Respond with this exact JSON structure:
       analyzed_at: new Date().toISOString(),
       confidence: "high"
     };
-
-    console.log("Final values - Priority:", priority, "Time:", estimated_time, "Label:", label);
 
     // Create the task with AI enhancements
     const { data, error } = await supabaseClient
@@ -148,7 +117,7 @@ Respond with this exact JSON structure:
 
     if (error) throw error;
 
-    console.log("SUCCESS - Task created with AI insights");
+    console.log(`✅ Task created with AI insights: Priority=${priority}, Time=${estimated_time}min, Label=${label}`);
 
     return new Response(JSON.stringify(data), {
       headers: {

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Brain } from "lucide-react";
 import { getLabelColors } from "@/lib/labels";
 import { Task } from "@/types/models";
 
@@ -18,6 +18,19 @@ const TaskRow = ({ task, onDelete, onToggleComplete }: TaskRowProps) => {
     return dateString.split("T")[0];
   };
 
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case "high":
+        return "bg-red-100 text-red-800 border-red-300";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "low":
+        return "bg-green-100 text-green-800 border-green-300";
+      default:
+        return "";
+    }
+  };
+
   return (
     <TableRow className="hover:bg-muted/50">
       <TableCell className="py-2">
@@ -29,12 +42,28 @@ const TaskRow = ({ task, onDelete, onToggleComplete }: TaskRowProps) => {
         />
       </TableCell>
       <TableCell className="py-2">
-        <Link
-          href={`/task?id=${task.task_id}`}
-          className="hover:underline font-medium"
-        >
-          {task.title}
-        </Link>
+        <div className="space-y-1">
+          <Link
+            href={`/task?id=${task.task_id}`}
+            className="hover:underline font-medium block"
+          >
+            {task.title}
+          </Link>
+          {/* AI Insights Preview */}
+          {(task.priority || task.estimated_time) && (
+            <div className="flex items-center gap-2 text-xs">
+              <Brain className="w-3 h-3 text-purple-600" />
+              {task.priority && (
+                <Badge variant="outline" className={getPriorityColor(task.priority) + " text-xs"}>
+                  {task.priority.toUpperCase()}
+                </Badge>
+              )}
+              {task.estimated_time && (
+                <span className="text-gray-500">~{task.estimated_time} min</span>
+              )}
+            </div>
+          )}
+        </div>
       </TableCell>
       <TableCell className="py-2">
         {task.label && (

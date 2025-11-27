@@ -1,10 +1,10 @@
 "use client";
-
 import { useState } from "react";
 import { useTaskManager } from "@/hooks/useTaskManager";
 import { Button } from "@/components/ui/button";
 import TaskList from "@/components/TaskList";
 import { CreateTaskForm } from "@/components/CreateTaskForm";
+import { TaskAnalyticsDashboard } from "@/components/task-analytics-dashboard";
 import { PlusCircle, ClipboardList } from "lucide-react";
 import {
   Dialog,
@@ -23,13 +23,16 @@ export default function Dashboard() {
   const handleCreateTask = async (title: string, description: string) => {
     await createTask(title, description);
     await refreshTasks();
-    console.log(`New Task Created: ${title}`);
+    console.log("New Task Created: " + title);
     setIsDialogOpen(false);
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-6">
+      {/* Analytics Dashboard */}
+      <TaskAnalyticsDashboard />
+
+      <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Your Tasks</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -49,6 +52,7 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
       </div>
+
       {tasks.length > 0 ? (
         <div className="border rounded-md">
           <TaskList

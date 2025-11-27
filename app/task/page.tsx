@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
+import { AIInsightsBadge } from "@/components/ai-insights-badge";
 import {
   Select,
   SelectContent,
@@ -186,7 +187,15 @@ function TaskForm() {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Task Details</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      
+      {/* AI Insights Display */}
+      <AIInsightsBadge
+        priority={task.priority}
+        estimatedTime={task.estimated_time}
+        aiInsights={task.ai_insights}
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-4 mt-6">
         <div className="grid w-full items-center gap-1.5">
           <Label>Title</Label>
           <Input
