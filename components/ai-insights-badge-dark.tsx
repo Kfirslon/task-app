@@ -1,17 +1,22 @@
 import { Brain, Clock, TrendingUp, Sparkles, Zap, Lightbulb } from "lucide-react";
 
+interface AIInsights {
+  suggestion?: string;
+  analyzed_at?: string;
+  confidence?: string;
+}
+
 interface AIInsightsBadgeDarkProps {
   priority?: string | null;
   estimatedTime?: number | null;
-  aiInsights?: {
-    suggestion?: string;
-    analyzed_at?: string;
-    confidence?: string;
-  } | null;
+  aiInsights?: any; // Accept Json type from Supabase
 }
 
 export function AIInsightsBadgeDark({ priority, estimatedTime, aiInsights }: AIInsightsBadgeDarkProps) {    
   if (!priority && !estimatedTime && !aiInsights) return null;
+
+  // Cast to our expected type
+  const insights = aiInsights as AIInsights | null;
 
   const priorityColors = {
     high: "bg-red-900/50 text-red-200 border-red-500",
@@ -58,20 +63,20 @@ export function AIInsightsBadgeDark({ priority, estimatedTime, aiInsights }: AII
             </div>
           )}
 
-          {aiInsights?.suggestion && (
+          {insights?.suggestion && (
             <div className="rounded-xl p-4 bg-slate-800/90 border-2 border-purple-500 backdrop-blur-sm shadow-xl transform hover:scale-105 transition-transform md:col-span-1">
               <div className="flex items-center gap-2 mb-2 text-purple-300">
                 <Lightbulb className="h-5 w-5" />
                 <span className="font-semibold text-sm">AI Suggestion</span>
               </div>
-              <p className="text-sm text-purple-200 leading-relaxed">{aiInsights.suggestion}</p>
+              <p className="text-sm text-purple-200 leading-relaxed">{insights.suggestion}</p>
             </div>
           )}
         </div>
 
         <div className="flex items-center gap-2 text-slate-400 text-xs pt-2 border-t border-slate-700">
           <Zap className="h-4 w-4" />
-          <span>Powered by AI • Analysis confidence: {aiInsights?.confidence || 'High'}</span>
+          <span>Powered by AI • Analysis confidence: {insights?.confidence || 'High'}</span>
         </div>
       </div>
     </div>
