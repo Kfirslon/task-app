@@ -1,63 +1,78 @@
-import { Brain, Clock, TrendingUp, Zap } from "lucide-react";
+import { Brain, Clock, TrendingUp, Sparkles, Zap, Lightbulb } from "lucide-react";
 
-interface AIInsightsBadgeProps {
-  priority?: string;
-  estimatedTime?: number;
+interface AIInsightsBadgeDarkProps {
+  priority?: string | null;
+  estimatedTime?: number | null;
   aiInsights?: {
     suggestion?: string;
     analyzed_at?: string;
     confidence?: string;
-  };
+  } | null;
 }
 
-export function AIInsightsBadge({ priority, estimatedTime, aiInsights }: AIInsightsBadgeProps) {
+export function AIInsightsBadgeDark({ priority, estimatedTime, aiInsights }: AIInsightsBadgeDarkProps) {    
   if (!priority && !estimatedTime && !aiInsights) return null;
 
   const priorityColors = {
-    high: "bg-red-500/20 text-red-300 border-red-500/50",
-    medium: "bg-yellow-500/20 text-yellow-300 border-yellow-500/50",
-    low: "bg-green-500/20 text-green-300 border-green-500/50",
+    high: "bg-red-900/50 text-red-200 border-red-500",
+    medium: "bg-yellow-900/50 text-yellow-200 border-yellow-500",
+    low: "bg-green-900/50 text-green-200 border-green-500",
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-cyan-500/30 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 p-4 shadow-2xl shadow-cyan-500/20">
-      {/* Glowing border effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-xl"></div>
+    <div className="relative rounded-2xl overflow-hidden mb-4 shadow-2xl">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 via-transparent to-blue-500/10"></div>
       
-      {/* Content */}
-      <div className="relative space-y-3">
-        <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-cyan-400 animate-pulse" />
-          <Brain className="w-4 h-4 text-purple-400" />
-          <span className="text-sm font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            AI POWERED INSIGHTS
-          </span>
+      <div className="relative p-5 space-y-4 border border-slate-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-slate-800/90 rounded-xl shadow-lg backdrop-blur-sm border border-slate-600">
+              <Brain className="h-6 w-6 text-purple-400" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-100 drop-shadow-lg flex items-center gap-2">
+              AI Analysis
+              <Sparkles className="h-5 w-5 text-yellow-400 animate-pulse" />
+            </h3>
+          </div>
         </div>
-        
-        <div className="flex flex-wrap gap-2">
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {priority && (
-            <div className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold border ${priorityColors[priority as keyof typeof priorityColors] || priorityColors.medium}`}>
-              <TrendingUp className="w-3 h-3" />
-              <span>{priority.toUpperCase()}</span>
+            <div className={`rounded-xl p-4 ${priorityColors[priority as keyof typeof priorityColors] || priorityColors.medium} border-2 backdrop-blur-sm shadow-xl transform hover:scale-105 transition-transform`}>
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-5 w-5" />
+                <span className="font-semibold text-sm">Priority</span>
+              </div>
+              <p className="text-lg font-bold capitalize">{priority}</p>
             </div>
           )}
-          
+
           {estimatedTime && (
-            <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/50">
-              <Clock className="w-3 h-3" />
-              <span>{estimatedTime} MIN</span>
+            <div className="rounded-xl p-4 bg-slate-800/90 border-2 border-blue-500 backdrop-blur-sm shadow-xl transform hover:scale-105 transition-transform">
+              <div className="flex items-center gap-2 mb-2 text-blue-300">
+                <Clock className="h-5 w-5" />
+                <span className="font-semibold text-sm">Estimated Time</span>
+              </div>
+              <p className="text-lg font-bold text-blue-200">{estimatedTime} minutes</p>
+            </div>
+          )}
+
+          {aiInsights?.suggestion && (
+            <div className="rounded-xl p-4 bg-slate-800/90 border-2 border-purple-500 backdrop-blur-sm shadow-xl transform hover:scale-105 transition-transform md:col-span-1">
+              <div className="flex items-center gap-2 mb-2 text-purple-300">
+                <Lightbulb className="h-5 w-5" />
+                <span className="font-semibold text-sm">AI Suggestion</span>
+              </div>
+              <p className="text-sm text-purple-200 leading-relaxed">{aiInsights.suggestion}</p>
             </div>
           )}
         </div>
 
-        {aiInsights?.suggestion && (
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-3 border border-purple-500/30">
-            <div className="text-xs text-gray-300 flex items-start gap-2">
-              <span className="text-lg">í²¡</span>
-              <span className="flex-1">{aiInsights.suggestion}</span>
-            </div>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-slate-400 text-xs pt-2 border-t border-slate-700">
+          <Zap className="h-4 w-4" />
+          <span>Powered by AI â€¢ Analysis confidence: {aiInsights?.confidence || 'High'}</span>
+        </div>
       </div>
     </div>
   );

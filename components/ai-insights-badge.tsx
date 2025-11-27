@@ -1,16 +1,16 @@
 import { Brain, Clock, TrendingUp, Sparkles, Waves, Lightbulb } from "lucide-react";
 
 interface AIInsightsBadgeProps {
-  priority?: string;
-  estimatedTime?: number;
+  priority?: string | null;
+  estimatedTime?: number | null;
   aiInsights?: {
     suggestion?: string;
     analyzed_at?: string;
     confidence?: string;
-  };
+  } | null;
 }
 
-export function AIInsightsBadge({ priority, estimatedTime, aiInsights }: AIInsightsBadgeProps) {
+export function AIInsightsBadge({ priority, estimatedTime, aiInsights }: AIInsightsBadgeProps) {    
   if (!priority && !estimatedTime && !aiInsights) return null;
 
   const priorityColors = {
@@ -28,46 +28,51 @@ export function AIInsightsBadge({ priority, estimatedTime, aiInsights }: AIInsig
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/90 rounded-xl shadow-lg backdrop-blur-sm">
-              <Brain className="w-6 h-6 text-blue-600" />
+              <Brain className="h-6 w-6 text-blue-600" />
             </div>
-            <div>
-              <span className="text-sm font-bold text-white drop-shadow-lg flex items-center gap-2">
-                AI Insights
-                <Sparkles className="w-4 h-4 text-cyan-200 animate-pulse" />
-              </span>
-              <p className="text-xs text-blue-100">Powered by OpenAI</p>
-            </div>
+            <h3 className="text-xl font-bold text-white drop-shadow-lg flex items-center gap-2">
+              AI Analysis
+              <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
+            </h3>
           </div>
-          <Waves className="w-6 h-6 text-white/60" />
         </div>
-        
-        <div className="flex flex-wrap gap-2">
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {priority && (
-            <div className={`flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold border-2 shadow-lg backdrop-blur-sm ${priorityColors[priority as keyof typeof priorityColors] || priorityColors.medium}`}>
-              <TrendingUp className="w-3 h-3" />
-              <span>{priority.toUpperCase()} Priority</span>
+            <div className={`rounded-xl p-4 ${priorityColors[priority as keyof typeof priorityColors] || priorityColors.medium} border-2 backdrop-blur-sm bg-white/90 shadow-xl transform hover:scale-105 transition-transform`}>
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-5 w-5" />
+                <span className="font-semibold text-sm">Priority</span>
+              </div>
+              <p className="text-lg font-bold capitalize">{priority}</p>
             </div>
           )}
-          
+
           {estimatedTime && (
-            <div className="flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold bg-white text-blue-700 shadow-lg">
-              <Clock className="w-3 h-3" />
-              <span>{estimatedTime} minutes</span>
+            <div className="rounded-xl p-4 bg-white/90 border-2 border-blue-300 backdrop-blur-sm shadow-xl transform hover:scale-105 transition-transform">
+              <div className="flex items-center gap-2 mb-2 text-blue-800">
+                <Clock className="h-5 w-5" />
+                <span className="font-semibold text-sm">Estimated Time</span>
+              </div>
+              <p className="text-lg font-bold text-blue-900">{estimatedTime} minutes</p>
+            </div>
+          )}
+
+          {aiInsights?.suggestion && (
+            <div className="rounded-xl p-4 bg-white/90 border-2 border-cyan-300 backdrop-blur-sm shadow-xl transform hover:scale-105 transition-transform md:col-span-1">
+              <div className="flex items-center gap-2 mb-2 text-cyan-800">
+                <Lightbulb className="h-5 w-5" />
+                <span className="font-semibold text-sm">AI Suggestion</span>
+              </div>
+              <p className="text-sm text-cyan-900 leading-relaxed">{aiInsights.suggestion}</p>
             </div>
           )}
         </div>
 
-        {aiInsights?.suggestion && (
-          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-xl border-2 border-white/50">
-            <div className="text-sm text-gray-800 flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-yellow-500 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="font-semibold text-blue-600 text-xs mb-1">AI Suggestion</p>
-                <p className="font-medium">{aiInsights.suggestion}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-white/80 text-xs pt-2 border-t border-white/20">
+          <Waves className="h-4 w-4" />
+          <span>Powered by AI • Analysis confidence: {aiInsights?.confidence || 'High'}</span>
+        </div>
       </div>
     </div>
   );
